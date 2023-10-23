@@ -16,6 +16,7 @@
     - [Security](#security)
     - [Backup and Disaster Recovery](#backup-and-disaster-recovery)
     - [Loging and Monitoring](#loging-and-monitoring)
+    - [Other resource](#other-resource)
     - [Potential shortcomings](#potential-shortcomings)
 
 
@@ -96,6 +97,7 @@
   - [Auto Scaler](https://github.com/kubernetes/autoscaler): Cluster Autoscaler is a tool that automatically adjusts the size of the Kubernetes cluster when one of the following conditions is true:
     - there are pods that failed to run in the cluster due to insufficient resources.
     - there are nodes in the cluster that have been underutilized for an extended period of time and their pods can be placed on other existing nodes.
+
 
 
 
@@ -191,6 +193,25 @@ If issues are detected during analysis, I can easily roll back to the previous v
   - For application monitoring, I use [`Prometheus Operator provides Kubernetes`](https://github.com/prometheus-operator/prometheus-operator),  it extends the capabilities of Prometheus and makes it easier to monitor containerized applications and infrastructure within a Kubernetes environment. Here are some of the key features and explanations of how the Prometheus Operator integrates with Kubernetes. It automatically generates Prometheus scrape configurations based on ServiceMonitors. A ServiceMonitor is a custom resource that defines the endpoints and labels for scraping metrics from services. The Prometheus Operator integrates with AlertManager, which allows you to define alerting rules and notification configurations using custom resources. You can set up alerts for various conditions and define alert receivers includes Telegram, Mail, Slack, ... While not part of the Prometheus Operator itself, it's common to use Grafana alongside Prometheus for visualization. The operator can help with the setup and management of Grafana.
 
 - Logging: EFK is best tool on EKS. I'll deploy fluentbit as daemonset in EKS cluster to collect all logs data from sources and forwards the parsed and structured log data to Elasticsearch, where it's indexed and stored. Elasticsearch provides powerful full-text search and analysis capabilities.. Kibana is used to interact with the indexed log data. Users can create custom visualizations, dashboards, and perform ad-hoc searches to gain insights into the data. This is particularly useful for monitoring and troubleshooting.
+
+
+### <a name='Other resource'></a>Other resource
+- ALB: 
+  -  I use Application Load Balancer (ALB) ingress to expose services inside the EKS cluster to the outside. ALB (Application Load Balancer) Ingress is a Kubernetes resource that allows configure AWS Application Load Balancers to route incoming traffic to various services in a Kubernetes cluster. It's a way to expose your Kubernetes services externally and manage traffic routing efficiently. 
+  -  An Ingress resource is created with routing rules, specifying how incoming requests should be handled.
+  - The AWS ALB Ingress Controller watches for changes in Ingress resources.
+  - When a new Ingress resource is created or an existing one is updated, the Ingress Controller configures the corresponding AWS ALB accordingly.
+  - The ALB listens for incoming traffic and routes it based on the Ingress rules to the backend Services in the Kubernetes cluster.
+  - I just use an ALB for all services inside EKS. Each service corresponds to an ALB target group.
+
+- Cloudfront:
+  - Integrating Amazon CloudFront with an Application Load Balancer can significantly enhance the security, performance, and scalability of your web application. CloudFront's edge locations and caching capabilities reduce latency, offload traffic, and protect your application from various online threats. It's a powerful combination for delivering content to users reliably and efficiently.
+
+- Route53:
+  - When a user accesses your application, Route 53 routes the request to the nearest CloudFront edge location.
+  - CloudFront serves cached content when available, reducing latency and offloading traffic.
+  - If the content isn't cached or if there's a cache miss, CloudFront forwards the request to the ALB.
+  - The ALB, in turn, directs the traffic to the appropriate service or pods within your EKS cluster based on the defined rules and target groups.
 
 
 ### <a name='Potential shortcomings'></a>Potential shortcomings
